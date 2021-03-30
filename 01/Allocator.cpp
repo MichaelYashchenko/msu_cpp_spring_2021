@@ -18,7 +18,7 @@ char* Allocator::adress() {
 }
 
 char* Allocator::alloc(size_t size) {
-	if (right + size > start + num_bites - 1) {
+	if (right + size > start + num_bites) {
 		return nullptr;
 	}
 	right += size;
