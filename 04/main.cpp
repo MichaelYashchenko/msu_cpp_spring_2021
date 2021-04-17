@@ -20,7 +20,7 @@ void Tests() {
     assert(t <= c);
     assert(t < c);
     assert(c > t);
-    std::cout << "Tests are over, check if all is correct\n";
+    std::cout << "\nTests are over, check if all is correct\n";
 }
 
 
