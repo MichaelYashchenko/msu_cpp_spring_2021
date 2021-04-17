@@ -7,14 +7,14 @@
 
 
 class BigInt {
-	char* number;
-	bool minus;
+    char* number;
+    bool minus;
 
     BigInt sum(const BigInt& num1, const BigInt& num2);
     BigInt subtract(const BigInt& num1, const BigInt& num2);
     bool isSmaller(const char* str1, const char* str2); 
 		
-	public:	
+    public:	
         BigInt();		
         BigInt(int i);		
         BigInt(const char* i);		
