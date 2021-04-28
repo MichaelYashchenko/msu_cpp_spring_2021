@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
+#include <string>
+#include <sstream>
 
 class Matrix {
 	size_t rows = 0;
@@ -10,20 +12,20 @@ class Matrix {
 	public:
 		class Proxy {
 			public:
-			size_t j = 0;
-			int* i = nullptr;
-			Proxy(int* ii, size_t jj);
-			int& operator[] (size_t j);
+			size_t size = 0; //j
+			int* data = nullptr; //i
+			Proxy(int* d, size_t s);
+			int& operator[] (size_t i) const;
 
 		};
 		Matrix(size_t r, size_t c);
 		size_t getRows();
 		size_t getCols();
 		Matrix& operator*= (int k);
-	    Matrix operator+(Matrix const &m);
-		bool operator== (const Matrix& m);
-		bool operator!= (const Matrix& m);
-		Proxy operator[] (size_t i);
+	    friend const Matrix operator+ (const Matrix& m1, const Matrix& m2);
+		const bool operator== (const Matrix& m);
+		const bool operator!= (const Matrix& m);
+		Proxy operator[] (size_t i) const;
 	    friend std::ostream& operator<<(std::ostream& stream, const Matrix& matrix);
 		~Matrix();
 };

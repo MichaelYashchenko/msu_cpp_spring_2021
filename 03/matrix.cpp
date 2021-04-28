@@ -1,27 +1,22 @@
 #include "matrix.h"
 
 Matrix::~Matrix() {
-	if (arr != nullptr) {
-		for (size_t i = 0; i != rows; ++i) {
-			delete[] arr[i];
-		}
-	}
 	delete[] arr;
 }
 
-Matrix::Proxy::Proxy(int* ii, size_t jj) {
-	i = ii;
-	j = jj;
+Matrix::Proxy::Proxy(int* d, size_t s) {
+	data = d;
+	size = s;
 }
 
-int& Matrix::Proxy::operator[] (size_t jj) {
-	if (jj > j) {
+int32_t& Matrix::Proxy::operator[] (size_t i) const{
+	if (i > size) {
 		throw std::out_of_range("");
 	}
-	return i[jj];
+	return data[i];
 }
 
-Matrix::Proxy Matrix::operator[] (size_t i) {
+Matrix::Proxy Matrix::operator[] (size_t i) const{
 	if (i > rows) {
 		throw std::out_of_range("");
 	}
@@ -32,7 +27,7 @@ Matrix::Matrix(size_t r, size_t c) {
 	rows = r;
 	cols = c;
 	arr = new int*[rows];
-	for (size_t i =0; i !=cols; ++i) {
+	for (size_t i =0; i !=rows; ++i) {
 		arr[i] = new int[cols];
 	}
 }
@@ -54,11 +49,15 @@ Matrix& Matrix::operator*= (int k) {
 	return *this;
 }
 
-bool Matrix::operator== (const Matrix& m) {
-	if ((rows != m.rows) || (cols != m.cols)) return false;
+const bool Matrix::operator== (const Matrix& m) {
+	if ((rows != m.rows) || (cols != m.cols)){
+		return false;
+	}
 	for (size_t i = 0; i != rows; ++i) {
 		for (size_t j = 0; j != cols; ++j) {
-			if (arr[i][j] != m.arr[i][j]) return false;
+			if (arr[i][j] != m.arr[i][j]){
+				return false;
+			}
 		}
 	}
 	return true;
@@ -74,6 +73,19 @@ std::ostream& operator<<(std::ostream &out, const Matrix &matrix) {
 	return out;
 }
 
-bool Matrix::operator!= (const Matrix& m) {
+const bool Matrix::operator!= (const Matrix& m) {
 	return !(*this == m);
+}
+
+const Matrix operator+ (const Matrix& m1, const Matrix& m2) {
+	if(m1.rows != m2.rows || m1.cols != m2.cols)
+		throw std::length_error("");
+
+	Matrix result_matrix(m1.rows, m1.cols);
+	for(size_t i=0; i < m1.rows; i++) {
+		for(size_t j=0; j < m1.cols; j++) {
+			result_matrix[i][j] = m1[i][j] + m2[i][j];
+		}
+	}
+	return result_matrix;
 }
