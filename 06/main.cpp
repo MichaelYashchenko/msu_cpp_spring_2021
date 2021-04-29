@@ -23,6 +23,6 @@ int main() {
     GeneralTest();
     EmptyStringTest();
     NumberReplaceTest();
-	std::cout << "All tests successfully passed\n"; 
-	return 0;
+    std::cout << "All tests successfully passed\n"; 
+    return 0;
 }
