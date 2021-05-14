@@ -48,7 +48,7 @@ void SumTest() {
 	}
 
 	num = num1 + num4;
-    ans = num.NumToStr();
+    	ans = num.NumToStr();
 	correctAns = "1";
 	for (int i = 0; i < strlen(ans); i++) {
 		assert(ans[i] = correctAns[i]);
@@ -81,7 +81,7 @@ void SumTest() {
 	for (int i = 0; i < strlen(ans); i++) {
 		assert(ans[i] = correctAns[i]);
 	}
-    std::cout << "Sum test passed!\n";
+    	std::cout << "Sum test passed!\n";
 }
 
 void SubtractTest() {
@@ -150,7 +150,7 @@ void SubtractTest() {
 	for (int i = 0; i < strlen(ans); i++) {
 		assert(ans[i] = correctAns[i]);
 	}
-    std::cout << "Subtract test passed!\n";
+    	std::cout << "Subtract test passed!\n";
 }
 
 void MultiplyTest() {
@@ -205,7 +205,7 @@ void MultiplyTest() {
 	for (int i = 0; i < strlen(ans); i++) {
 		assert(ans[i] = correctAns[i]);
 	}
-    std::cout << "Multiply test passed!\n";
+    	std::cout << "Multiply test passed!\n";
 }
 
 void CompareTest() {
@@ -223,18 +223,18 @@ void CompareTest() {
 	assert(num3 < num4);
 	assert(num4 >= num3);
 	assert(num7 < num6);
-    std::cout << "Compare test passed!\n";
+    	std::cout << "Compare test passed!\n";
 }
 
 void CopyTest() {
 	BigInt num1("1234");
 	BigInt num2(num1);
-    BigInt num3("1234");
+    	BigInt num3("1234");
 	BigInt num4("4321");
 	assert(num1 == num2);
 	num4 = num3;
 	assert(num3 == num4);
-    std::cout << "Copy test passed!\n";
+    	std::cout << "Copy test passed!\n";
 }
 
 void MoveTest() {
@@ -258,7 +258,7 @@ void MoveTest() {
 	for (int i = 0; i < strlen(ans); i++) {
 		assert(ans[i] = correctAns[i]);
 	}
-    std::cout << "Move test passed!\n";
+    	std::cout << "Move test passed!\n";
 }
 
 void OutTest() {
@@ -267,11 +267,11 @@ void OutTest() {
 	std::string ans = "-1234567890";
 	oss << num;
 	assert(oss && (oss.str() == ans));
-    std::cout << "Out test passed!\n";
+    	std::cout << "Out test passed!\n";
 }
 
 int main() {
-    std::cout << "Test started!\n";
+    	std::cout << "Test started!\n";
 	ConstructorTest();
 	SumTest();
 	SubtractTest();
