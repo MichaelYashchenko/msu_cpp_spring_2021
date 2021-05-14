@@ -1,329 +1,384 @@
-#include "BigInt.h"
+#include "BigInt.hpp"
 
 BigInt::BigInt() {
+	num = nullptr;
 	minus = false;
-	number = nullptr;
 }
 
-BigInt::BigInt(int i) {
-	minus = i >= 0 ? false : true;
-	char* tmp = new char[11];
-	sprintf(tmp, "%d", i > 0 ? i : -i);
-	number = tmp;
-	number[strlen(number)] = '\0';
+BigInt::BigInt(int number) {
+	minus = number <= 0;
+	char* buff = new char[11];
+	sprintf(buff, "%d", number > 0 ? number : -number);
+	num = buff;
+	num[strlen(num)] = '\0';
 }
 
-BigInt::BigInt(const char* i) {
-	if (i[0] == '-') {
-		minus = true;
-		number = new char[strlen(i)];
-		std::copy(i + 1, i + strlen(i), number);
-		number[strlen(i)] = '\0';
-	}
-	else {
-		minus = false;
-		number = new char[strlen(i) + 1];
-		std::copy(i, i + strlen(i), number);
-		number[strlen(i)] = '\0';
-	}
+BigInt::BigInt(const char* number) {
+	minus = number[0] == '-';
+	int offset = minus ? 1 : 0;
+	num = new char[strlen(number) + offset];
+	std::copy(number + offset, number + strlen(number) + offset, num);
+	num[strlen(number)] = '\0';
 }
-
 
 BigInt::~BigInt() {
-	delete[] number;
+	delete[] num;
 }
 
-int BigInt::c2i(char x) {
-   return x - '0';
-}
-
-char BigInt::i2c(int x) {
-	return x + '0';
-}
-
-bool BigInt::isSmaller(const char* str1, const char* str2) { // comparing modules 
-    int n1 = strlen(str1), n2 = strlen(str2); 
-  
-    if (n1 < n2) 
-        return true; 
-    else if (n1 > n2)
-        return false; 
-  	else {
-  		for (int i=0; i<n1; i++) { 
-	        if (str1[i] < str2[i]) 
-	            return true; 
-	        else if (str1[i] > str2[i]) 
-	            return false; 
-	    } 
-	  }
-    return false; 
-} 
-
-BigInt BigInt::subtract(const BigInt& num1, const BigInt& num2) {
-    char* str1 = num1.number;
-    char* str2 = num2.number;
-    if (isSmaller(str1, str2)) {
-    	auto tmp = str1;
-    	str1 = str2;
-    	str2 = tmp;
+BigInt::BigInt(const BigInt &a) {
+	if (this == &a) {
+		return;
 	}
-  	char* str = new char[strlen(str1) * 20]; 
-    int n1 = strlen(str1), n2 = strlen(str2); 
-    int diff = n1 - n2; 
-    int carry = 0; 
-    int j = 0;
-    for (int i=n2-1; i> -1; --i) { 
-        int sub = ((str1[i+diff]-'0') - 
-                   (str2[i]-'0') - 
-                   carry); 
-        if (sub < 0) { 
-            sub = sub+10; 
-            carry = 1; 
-        } 
-        else
-            carry = 0;   
-        str[j] = sub + '0';
-		++j; 
-    } 
-  	int i;
-    for (i=n1-n2-1; i>-1; i--) { 
-        if (str1[i]=='0' && carry) { 
-            str[j] = '9'; 
-            ++j;
-            continue; 
-        } 
-        int sub = ((str1[i]-'0') - carry); 
-        if (i>0 || sub>0) { 
-            str[j] = sub+'0';
-			}
-            ++j;
-        carry = 0;  
-    } 
-  	++i;
-
-    for (i = 0; i < strlen(str) / 2; i++) {
-        char t = str[i];
-        str[i] = str[strlen(str) - i - 1]; 
-        str[strlen(str) - i - 1] = t;
-    } 
-  	BigInt tmp(str);
-    return tmp; 
-} 
-
-bool BigInt::operator!=(const BigInt& num) {
-	return !(*this == num);
+	num = new char[strlen(a.num)];
+	std::copy(a.num, a.num + strlen(a.num), num);
+	num[strlen(a.num)] = '\0';
+	minus = a.minus;
 }
 
-bool BigInt::operator<=(const BigInt& num) {
-	bool tmp, tmp1;
-	if (this->minus && !num.minus)
-		return true;
-	if (!this->minus && num.minus)
-		return false;
-	else
-		tmp = isSmaller(this->number, num.number);
-	if (tmp)
-		return tmp;
-	else
-		tmp1 = isSmaller(num.number, this->number);
-	if (!tmp1)
-		return true;
-	return false;
+BigInt::BigInt(BigInt &&a) {
+	if (this == &a) {
+		return;
+	}
+	num = a.num;
+	minus = a.minus;
+	a.minus = false;
+	a.num = nullptr;
 }
 
-bool BigInt::operator>(const BigInt& num) {
-	if (!this->minus && num.minus)
-		return true;
-	if (this->minus && !num.minus)
-		return false;
-	else
-		return isSmaller(num.number, this->number);
-}
-
-bool BigInt::operator>=(const BigInt& num) {
-	bool tmp, tmp1;
-	if (!this->minus && num.minus)
-		return true;
-	if (this->minus && !num.minus)
-		return false;
-	else
-		tmp = isSmaller(num.number, this->number);
-	if (tmp)
-		return tmp;
-	else
-		tmp1 = isSmaller(this->number, num.number);
-	if (!tmp1)
-		return true;
-	return false;
-}
-
-bool BigInt::operator<(const BigInt& num) {
-	if (this->minus && !num.minus)
-		return true;
-	if (!this->minus && num.minus)
-		return false;
-	else
-		return isSmaller(this->number, num.number);
-}
-
-BigInt BigInt::sum(const BigInt& num1, const BigInt& num2) {
-    int i, wa=strlen(num1.number), wb=strlen(num2.number), width, sum, carry = 0;
-    width = wa > wb ? wa : wb; 
-    char* answer = new char[width + 2];
-    for(i=0; i<width; i++){
-        int ca, cb;
-		if (i < strlen(num1.number)) {
-        ca = c2i(num1.number[strlen(num1.number) - i - 1]);	
-		}
-		else ca = 0;
-        if (i < strlen(num2.number)) {
-        	cb = c2i(num2.number[strlen(num2.number) - i - 1]);
-		}
-		else cb = 0;
-        sum = ca + cb + carry;
-        carry = 0;
-        if(sum > 9){ 
-            carry = 1;
-            sum-=10;
-        }
-        answer[i] = sum+48;
-    }   
-    if(carry) 
-		answer[i] = carry+48;
-	++i;
-    answer[i]= '\0';
-    for (i = 0; i < strlen(answer) / 2; ++i) {
-        char t = answer[i];
-        answer[i] = answer[strlen(answer) - i - 1]; 
-        answer[strlen(answer) - i - 1] = t;
-    }   
-    BigInt temp = answer;
-    return temp;
-}
-
-BigInt BigInt::operator- () {
-    BigInt tmp (this->number);
-    tmp.minus = !tmp.minus;
-    return tmp;
-}
-
-BigInt& BigInt::operator=(const BigInt& i) {
-	if (this == &i)
-        return *this;
-	minus = i.minus;
-	delete[] number;
-	char* tmp = new char[strlen(i.number) + 1];
-	number = tmp;
-	std::copy(i.number, i.number + strlen(i.number), number);
-	number[strlen(i.number)] = '\0';
-	number = tmp;
+BigInt& BigInt::operator=(const BigInt &a) {
+	if (this == &a) {
+		return *this;
+	}
+	minus = a.minus;
+	delete[] num;
+	char* tmp = new char[strlen(a.num) + 1];
+	num = tmp;
+	std::copy(a.num, a.num + strlen(a.num), num);
+	num[strlen(a.num)] = '\0';
 	return *this;
 }
 
-BigInt& BigInt::operator=(int i) {
-	minus = i >= 0 ? false : true;
-	char* tmp = new char[11];
-	sprintf(tmp, "%d", i > 0 ? i : -i);
-	number = tmp;
-	number[strlen(number)] = '\0';
-    return *this;
+BigInt& BigInt::operator=(BigInt &&a) {
+	if (this == &a) {
+		return *this;
+	}
+	delete[] num;
+	num = a.num;
+	minus = a.minus;
+	a.minus = false;
+	a.num = nullptr;
+	return *this;
 }
 
-BigInt BigInt::operator-(const int num) {
-	BigInt tmp(num);
-	return *this - tmp;
+char BigInt::digit2char(int x)  const{
+	return x + '0';
 }
 
-BigInt BigInt::operator+(int num) {
-	BigInt tmp(num);
+int BigInt::char2digit(char x)  const{
+	return x - '0';
+}
+
+bool BigInt::smaller(const char* a, const char* b) const {
+	// compare two string of digits
+	int sizea = strlen(a);
+	int sizeb = strlen(b);
+	if (sizea < sizeb) {
+		return true;
+	}
+	else if (sizea > sizeb) {
+		return false;
+	}
+	else {
+		for (int i = 0; i < sizea; i++){
+			if (a[i] < b[i]) {
+				return true;
+			}
+			else if (a[i] > b[i]) {
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
+BigInt BigInt::sum(const BigInt& a, const BigInt& b) const {
+	// sum of two positive char ints
+	char* astr = a.num;
+	char* bstr = b.num;
+	int sizea = strlen(astr);
+	int sizeb = strlen(bstr);
+	int sizemax = sizea > sizeb ? sizea : sizeb;
+	char* res = new char[sizemax + 1];
+	int carry = 0;
+	int i = 0;
+
+	for (i = 0; i < sizemax; i++) {
+		int digita, digitb;
+		if (i < sizea) {
+			digita = char2digit(astr[sizea - i - 1]);
+		}
+		else {
+			digita = 0;
+		}
+		if (i < sizeb) {
+			digitb = char2digit(bstr[sizeb - i -1]);
+		}
+		else {
+			digitb = 0;
+		}
+
+		int sum = digita + digitb + carry;
+		carry = 0;
+		if (sum > 9) {
+			carry = 1;
+			sum -= 10;
+		}
+		res[i] = digit2char(sum);
+	}
+	if (carry) {
+		res[i] = digit2char(1);
+		i++;
+	}
+	res[i] = '\0';
+
+	for (i = 0; i < strlen(res) / 2; i++) {
+		char tmp = res[i];
+		res[i] = res[strlen(res) - i - 1];
+		res[strlen(res) - i - 1] = tmp;
+	}
+	BigInt ans(res);
+	ans.minus = false;
+	return ans;
+}
+
+BigInt BigInt::subtract(const BigInt& a, const BigInt& b) const {
+	// subtraction of two BigInts, minus is ignored
+	char* astr = a.num;
+	char* bstr = b.num;
+	bool ans_minus = false;
+	if (smaller(astr, bstr)) {
+		char* tmp = astr;
+		astr = bstr;
+		bstr = tmp;
+		ans_minus = true;
+	}
+	int sizea = strlen(astr);
+	int sizeb = strlen(bstr);
+	char* res = new char[sizea + 1];
+	int carry = 0;
+	int i = 0;
+
+	for (i = sizeb - 1; i >= 0; --i) {
+		int digita, digitb;
+		digita = char2digit(astr[i + (sizea - sizeb)]);
+		digitb = char2digit(bstr[i]);
+		int sub = digita - digitb - carry;
+		carry = 0;
+		if (sub < 0) {
+			carry = 1;
+			sub += 10;
+		}
+		res[i + (sizea - sizeb)] = digit2char(sub);
+	}
+	for (i = sizea - sizeb - 1; i >= 0; --i) {
+		int digita;
+		digita = char2digit(astr[i]);
+		int sub = digita - carry;
+		carry = 0;
+		if (sub < 0) {
+			carry = 1;
+			sub += 10;
+		}
+		res[i] = digit2char(sub);
+	}
+	int ind = sizea - 1;
+	for (i = 0; i < sizea; i++) {
+		if ((res[i] != '0') && (ind == sizea - 1)) {
+			ind = i;
+			break;
+		}
+	}
+	for (i = 0; i < sizea - ind; i++) {
+		res[i] = res[ind + i];
+	}
+	res[i] = '\0';
+	BigInt ans(res);
+	ans.minus = ans_minus;
+	return ans;
+}
+
+BigInt BigInt::operator+(const BigInt &a) const {
+	if (!minus && !a.minus) {
+		return sum(*this, a);
+	}
+	else if (minus && a.minus) {
+		return -sum(*this, a);
+	}
+	else if (!minus && a.minus) {
+		return subtract(*this, a);
+	}
+	else {
+		return subtract(a, *this);
+	}
+
+}
+
+BigInt BigInt::operator+(const int a) const {
+	BigInt tmp(a);
 	return *this + tmp;
 }
 
-BigInt BigInt::operator+(const BigInt& num){
-
-	if (minus && num.minus) {
-        return -sum(*this, num);
-    }
-
-    if (minus && !num.minus) {
-        if (isSmaller(number, num.number)) {
-        	return subtract(num, *this);
-		}
-		else {
-			return -subtract(*this, num);
-		}
-    }
-
-    if (!minus && num.minus) {
-        if (isSmaller(number, num.number)) {
-        	return -subtract(num, *this);
-		}
-		else {
-			return subtract(*this, num);
-		}
-    }
-
-    else {
-        return sum(*this, num);
-    }
+BigInt BigInt::operator-() const {
+	BigInt tmp(num);
+	tmp.minus = !minus;
+	return tmp;
 }
 
-bool BigInt::operator==(const BigInt& i) {
-	if (this == &i) {
+BigInt BigInt::operator-(const BigInt &a) const {
+	if (!minus && !a.minus) {
+		return subtract(*this, a);
+	}
+	else if (minus && a.minus) {
+		return subtract(a, *this);
+	}
+	else if (!minus && a.minus) {
+		return sum(*this, a);
+	}
+	else {
+		return -sum(*this, a);
+	}
+}
+
+BigInt BigInt::operator-(const int a) const {
+	BigInt tmp(a);
+	return *this - tmp;
+}
+
+BigInt BigInt::multiply(const BigInt& a, const BigInt& b) const {
+	char* astr = a.num;
+	char* bstr = b.num;
+	int sizea = strlen(astr);
+	int sizeb = strlen(bstr);
+	int i;
+	char* res = new char[sizea + sizeb + 1];
+	for (i = 0; i < sizea + sizeb; i++) {
+		res[i] = '0';
+	}
+	res[i] = '\0';
+	int carry = 0;
+	for (i = sizea - 1; i >=0; i--) {
+		int digita = char2digit(astr[i]);
+		for (int j = sizeb-1; j >= 0; --j) {
+			int digitb = char2digit(bstr[j]);
+			int sum = digita * digitb + char2digit(res[i + j + 1]) + carry;
+			res[i + j + 1] = digit2char(sum % 10);
+			res[i + j] = digit2char(sum / 10 + char2digit(res[i + j]));
+		}
+	}
+	int ind = sizea + sizeb - 1;
+	for (i = 0; i < sizea + sizeb; i++) {
+		if ((res[i] != '0') && (ind == sizea + sizeb - 1)) {
+			ind = i;
+			break;
+		}
+	}
+	for (i = 0; i < sizea + sizeb - ind; i++) {
+		res[i] = res[ind + i];
+	}
+	res[i] = '\0';
+	BigInt ans(res);
+	return ans;
+}
+
+BigInt BigInt::operator*(const BigInt &a) const {
+	if ((!minus && !a.minus) || (minus && a.minus)) {
+		return multiply(*this, a);
+	}
+	else {
+		return -multiply(*this, a);
+	}
+}
+
+BigInt BigInt::operator*(const int a) const {
+	BigInt tmp(a);
+	return *this * tmp;
+}
+
+bool BigInt::operator==(const BigInt &a) const {
+	if (this == &a) {
 		return true;
 	}
-	if (minus != i.minus)
+	if (minus != a.minus) {
 		return false;
-	if (strlen(number) != strlen(i.number))
-		return false;
-	for (size_t j = 0; j != strlen(number); ++j) {
-		if (number[j] != i.number[j])
-			return false;
 	}
-	return true;
+	return (!smaller(num, a.num) && !smaller(a.num, num));
+
 }
 
-BigInt BigInt::operator- (const BigInt& num) {
-    if (*this == num) {
-    	BigInt tmp(0);
-    	return tmp;
-	}
-    if (minus && num.minus) {
-        if (isSmaller(number, num.number)) {
-        	return subtract(num, *this);
-		}
-		else {
-			return -subtract(*this, num);
-		}
-    }
-
-    if (minus && !num.minus) {
-		return -sum(*this, num);
-    }
-
-    if (!minus && num.minus) {
-        return sum(*this, num);
-    }
-
-    else {
-        if (isSmaller(number, num.number)) {
-        	return -subtract(num, *this);
-		}
-		else {
-			return subtract(*this, num);
-		}
-    }
+bool BigInt::operator!=(const BigInt &a) const {
+	return !(*this == a);
 }
 
-
-std::ostream& operator<<(std::ostream& os, const BigInt& dt)
-{
-	if (dt.minus) {
-		os << "-";
+bool BigInt::operator>(const BigInt &a) const {
+	if (this == &a) {
+		return false;
 	}
-	if (dt.number[0] == '0') 
-		std::cout << '0';
-	else
-	    os << dt.number;
-    return os;
+	if (!minus && a.minus) {
+		return true;
+	}
+	else if (minus && !a.minus) {
+		return false;
+	}
+	else if (!minus && !a.minus) {
+		return smaller(a.num, num);
+	}
+	else {
+		return smaller(num, a.num);
+	}
+}
+
+bool BigInt::operator>=(const BigInt &a) const {
+	return ((*this == a) || (*this > a));
+}
+
+bool BigInt::operator<(const BigInt &a) const {
+	return !(*this >= a);
+}
+
+bool BigInt::operator<=(const BigInt &a) const {
+	return !(*this > a);
+}
+
+char* BigInt::NumToStr() const {
+	if (not num) {
+		return nullptr;
+	}
+	char* res = new char[strlen(num) + 2];
+	int i = 0;
+	if (minus) {
+		res[i] = '-';
+		i++;
+		for (i; i < strlen(num) + 1; i++) {
+			res[i] = num[i - 1];
+		}
+	}
+	else {
+		for (i; i < strlen(num); i++) {
+			res[i] = num[i];
+		}
+	}
+	res[i] = '\0';
+	return res;
+}
+
+std::ostream& operator<< (std::ostream& oss, const BigInt& a) {
+	if (not a.num) {
+		oss << "";
+		return oss;
+	}
+	if (a.minus) {
+		oss << "-";
+	}
+	oss << a.num;
+	return oss;
 }
