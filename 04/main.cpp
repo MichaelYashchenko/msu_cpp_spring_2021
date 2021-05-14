@@ -19,7 +19,7 @@ void ConstructorTest() {
 	for (int i = 0; i < strlen(ans3); i++) {
 		assert(ans3[i] = correctAns3[i]);
 	}
-    std::cout << "Constructor test passed!\n";
+    	std::cout << "Constructor test passed!\n";
 }
 
 void SumTest() {
