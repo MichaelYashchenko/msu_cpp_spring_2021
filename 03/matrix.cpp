@@ -1,6 +1,11 @@
 #include "matrix.h"
 
 Matrix::~Matrix() {
+	if (arr != nullptr) {
+		for (size_t i = 0; i != rows; ++i) {
+			delete[] arr[i];
+		}
+	}
 	delete[] arr;
 }
 
@@ -32,11 +37,11 @@ Matrix::Matrix(size_t r, size_t c) {
 	}
 }
 
-size_t Matrix::getRows() {
+size_t Matrix::getRows() const {
 	return rows;
 }
 
-size_t Matrix::getCols() {
+size_t Matrix::getCols() const {
 	return cols;
 }
 
@@ -49,7 +54,7 @@ Matrix& Matrix::operator*= (int k) {
 	return *this;
 }
 
-const bool Matrix::operator== (const Matrix& m) {
+const bool Matrix::operator== (const Matrix& m) const {
 	if ((rows != m.rows) || (cols != m.cols)){
 		return false;
 	}
@@ -73,18 +78,18 @@ std::ostream& operator<<(std::ostream &out, const Matrix &matrix) {
 	return out;
 }
 
-const bool Matrix::operator!= (const Matrix& m) {
+const bool Matrix::operator!= (const Matrix& m) const {
 	return !(*this == m);
 }
 
-const Matrix operator+ (const Matrix& m1, const Matrix& m2) {
-	if(m1.rows != m2.rows || m1.cols != m2.cols)
+Matrix Matrix::operator+ (const Matrix& m) const {
+	if(this->rows != m.rows || this->cols != m.cols)
 		throw std::length_error("");
 
-	Matrix result_matrix(m1.rows, m1.cols);
-	for(size_t i=0; i < m1.rows; i++) {
-		for(size_t j=0; j < m1.cols; j++) {
-			result_matrix[i][j] = m1[i][j] + m2[i][j];
+	Matrix result_matrix(m.rows, m.cols);
+	for(size_t i=0; i < m.rows; i++) {
+		for(size_t j=0; j < m.cols; j++) {
+			result_matrix[i][j] = (*this)[i][j] + m[i][j];
 		}
 	}
 	return result_matrix;
